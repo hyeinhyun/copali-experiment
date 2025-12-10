@@ -39,7 +39,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--image-column", default=None, help="Column that holds image data or paths (enables VLM mode)")
     parser.add_argument("--max-samples", type=int, default=None, help="Limit the number of evaluated samples")
     parser.add_argument("--output", type=Path, required=True, help="Path to the JSONL file for predictions")
-    parser.add_argument("--device", default="auto", help="Torch device; defaults to auto")
+    parser.add_argument(
+        "--device",
+        default="cuda",
+        help="Torch device; defaults to cuda and raises if unavailable to ensure GPU execution",
+    )
     parser.add_argument("--max-new-tokens", type=int, default=128, help="Generation length for open-ended questions")
     return parser.parse_args()
 
@@ -83,6 +87,12 @@ def generate_vlm(processor, model, prompt: str, image: Image.Image, max_new_toke
 
 
 def evaluate(args: argparse.Namespace) -> None:
+    if args.device == "auto":
+        raise ValueError("--device=auto is no longer supported; specify a GPU device such as 'cuda' explicitly.")
+
+    if not torch.cuda.is_available() or args.device.startswith("cpu"):
+        raise EnvironmentError("A CUDA-capable GPU is required to run this evaluation script.")
+
     ds = load_dataset(args.dataset, name=args.config, split=args.split, trust_remote_code=True)
     if args.max_samples:
         ds = ds.select(range(args.max_samples))
@@ -90,7 +100,7 @@ def evaluate(args: argparse.Namespace) -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     is_vlm = args.image_column is not None
-    device = args.device if args.device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
+    device = args.device
 
     if is_vlm:
         processor, model = setup_vlm(args.model, device)
