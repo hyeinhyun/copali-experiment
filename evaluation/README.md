@@ -44,6 +44,25 @@ python scripts/vidore_evaluation.py \
 
 The script builds simple prompts from the `question`/`answer` style fields common across the benchmark tasks and reports exact-match accuracy. For multimodal samples containing images, provide `--image-column` so that the script can attach images to the prompt via the Transformers `AutoProcessor` interface.
 
+## Evaluate retrieval runs with NDCG@10
+Retrieval-style Vidore configs (for example, `vidore/tabfquad_test`) expose three subsets: `queries`, `corpus`, and `qrels`. Once you have a run file that lists ranked document IDs per query, compute NDCG@10 with:
+
+```bash
+python scripts/vidore_ndcg.py \
+  --config vidore/tabfquad_test \
+  --run results/tabfquad_run.jsonl \
+  --k 10 \
+  --output results/tabfquad_ndcg.jsonl
+```
+
+The run file should be JSONL with one entry per query:
+
+```json
+{"query_id": "q_1", "doc_ids": ["doc_45", "doc_72", "doc_8"], "scores": [0.9, 0.4, 0.2]}
+```
+
+The `scores` array is optional; ordering of `doc_ids` determines the rank used for NDCG. The script prints the macro-averaged NDCG@K and, if `--output` is provided, writes per-query NDCG scores to a JSONL file for downstream analysis.
+
 ## Visualize results
 Once you have a JSONL results file (either from the sample run or your own evaluation loop), create a quick chart:
 
