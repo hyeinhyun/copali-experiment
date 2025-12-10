@@ -7,10 +7,12 @@ This repository does not include the Vidore benchmark data or model weights. The
 - A GPU-capable environment (the model is multimodal and large).
 - Access to the Hugging Face Hub (set `HUGGINGFACE_TOKEN` if required).
 
-Install the suggested dependencies:
+Install the suggested dependencies declared in `pyproject.toml` using [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pip install "transformers>=4.44" "datasets>=2.18" pillow matplotlib
+uv venv
+source .venv/bin/activate
+uv sync
 ```
 
 ## Download the benchmark

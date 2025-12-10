@@ -1,0 +1,18 @@
+[project]
+name = "copali-experiment"
+version = "0.1.0"
+description = "Helper scripts to evaluate Vidore Benchmark v3 and visualize results."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=2.18",
+    "matplotlib",
+    "pillow",
+    "torch",
+    "tqdm",
+    "transformers>=4.44",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
